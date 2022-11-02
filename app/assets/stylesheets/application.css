@@ -16,6 +16,8 @@
 body {
     margin: 33px;
     font-family: verdana, arial, helvetica, sans-serif;
+    font-size: 13px;
+    display: block;
 }
 h1 {
     padding-bottom: 20px;
@@ -50,3 +52,17 @@ td {
     padding-left: 5px;
     padding-right: 5px;
 }
+
+h2 {
+    font-size: 20px;
+    padding-bottom: 20px;
+    padding-top: 10px;
+}
+
+.field {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+
+
