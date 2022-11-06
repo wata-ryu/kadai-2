@@ -1,6 +1,8 @@
 <body>
-    <p id="notice"></p>
-
+  <div class="flash">
+    <%= flash[:notice] %>
+  </div>
+  
   <p>
     <strong>Title:</strong>
     <%= @book.title %>
