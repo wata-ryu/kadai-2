@@ -76,8 +76,20 @@ h1,h2 {
 .flash {
     color: green;
 }
+.error {
+    width: 450px;
+    background-color: #f0f0f0;
+    border: 2px solid red;
+}
 
-
-
+ul {
+    padding: 30px;
+}
+.title {
+    background-color: red;
+    padding: 5px;
+    font-weight: bold;
+    color: white;
+}
 
 
