@@ -1,4 +1,3 @@
-#文字列リテラルをfreeze（破壊的変更を防止）させています。RSpecとは関係ありません。記述がなくても動作します。
 # frozen_string_literal: true
 
 #これはspec/rails_helper.rbを読み込んでいます。設定などを行うファイルです。
