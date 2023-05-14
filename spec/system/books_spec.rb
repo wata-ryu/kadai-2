@@ -1,16 +1,29 @@
+#これはspec/rails_helper.rbを読み込んでいます。設定などを行うファイルです。
 require 'rails_helper'
 
 describe '投稿のテスト' do
+  #データの作成を行い「book」として使用することが可能です。
+  #letで指定されたものは遅延評価といってitの中でbookが出てきたときに始めて実行されます。
+  #今回のlet!は事前評価といいます。beforeと似たような使われ方をされますが、beforeではitブロックの実行時に都度実行されます。
+  #そのためit内で使用しない変数の場合にもbeforeは実行されてしまいます。
   let!(:book) { create(:book,title:'hoge',body:'body') }
   describe 'トップ画面(root_path)のテスト' do
     before do 
+      #visitは指定したパスへの画面遷移を行います。
+      #今回の場合ルートパス（トップ画面）への遷移をbeforeフックとして実行させています。
+      #この理由は、以降の続くit、2つのブロックでルートパス（トップ画面）への遷移を前提条件としているためです。
       visit root_path
     end
     context '表示の確認' do
       it 'トップ画面(root_path)に一覧ページへのリンクが表示されているか' do
+        #expect(page)で現在visitメソッドなどで開いているページ全体について調べています。
+        #have_linkではそのページの中のaタグ（link_toヘルパー）で、指定した文字列とhref属性を持ったものが存在するかを判定しています。
+        #今回の場合はhrefにbooksの一覧画面への遷移URLが存在するかをチェックしています。
         expect(page).to have_link "", href: books_path
       end
       it 'root_pathが"/"であるか' do
+        #expect(current_path)で現在のページURLを調べています。
+        #eqは、指定した値とexpectの値が同値であるかを判定します。
         expect(current_path).to eq('/')
       end
     end
@@ -21,7 +34,16 @@ describe '投稿のテスト' do
     end
     context '一覧の表示とリンクの確認' do
       it "bookの一覧表示(tableタグ)と投稿フォームが同一画面に表示されているか" do
+        #have_selectorでは特定のタグが存在しているか、また特定のタグに特定の文字列があるかなどを判定します。
+        #今回の場合はtableタグが存在しているかを判定しています。
+        #※特定のタグに特定の文字列があるかなどを判定する場合は以下のように記述します。
+        #expect(page).to have_selector 'p', text: 'テスト'
         expect(page).to have_selector 'table'
+        #have_fieldでは指定した値のフォームが存在するか判定します。
+        #今回の場合はbook[title]というname属性のフォームが存在するかで判定しています。
+        #book[title]というname属性は、Bookモデルのtitleカラムを入力するフォームをform_withで作成した際に自動で生成されるものです。
+        #※編集などで指定のフォームに値が表示されているかを判定する場合は以下のように記述します。
+        #expect(page).to have_field 'book[title]', with: 'テスト'
         expect(page).to have_field 'book[title]'
         expect(page).to have_field 'book[body]'
       end
@@ -35,7 +57,12 @@ describe '投稿のテスト' do
             expect(page).to have_content book.title
             expect(page).to have_content book.body
             # Showリンク
+            #find_allでは指定した値（タグ）をページ中から全て検索します。今回の場合はj番目のaタグをshow_linkに代入しています。
             show_link = find_all('a')[j]
+            #matchは正規表現を用いて文字列をチェックします。
+            #「/show/i」が正規表現で、Rubyでは2本スラッシュで囲んで、最後にオプション（今回は「i」）を付けて表します。
+            #今回の場合は、show_link内のテキストが/show/i（「show」や「Show」,「SHOW」など大文字小文字の違いを無視して判定）
+            #と一致するかどうかを判定します。
             expect(show_link.native.inner_text).to match(/show/i)
             expect(show_link[:href]).to eq book_path(book)
             # Editリンク
@@ -49,14 +76,23 @@ describe '投稿のテスト' do
           end
       end
       it 'Create Bookボタンが表示される' do
+        #have_buttonではボタンが存在するかを判定します。今回の場合はボタン内の文字列の'Create Book'を指定しています。
         expect(page).to have_button 'Create Book'
       end
     end
     context '投稿処理に関するテスト' do
       it '投稿に成功しサクセスメッセージが表示されるか' do
+        #fill_inではフォームの値を変更します。通常はフォームにテキストを入力すると考えて問題ありません。
+        #今回の場合name属性がbook[title]であるフォームを対象に指定しています。
+        #with:のあとには入力したい文字列を指定します。
+        #今回withの後にはFaker::Lorem.characters(number:5)としていて、5桁のランダムな文字列を入力する形になっています。
+        #※Fakerはテスト用のダミーデータを作成してくれるもので、GemfileにてFakerを導入しています。
         fill_in 'book[title]', with: Faker::Lorem.characters(number:5)
         fill_in 'book[body]', with: Faker::Lorem.characters(number:20)
+        #click_buttonはボタンをクリックします。ボタン内の文字列を指定します。
         click_button 'Create Book'
+        #have_contentでは指定した文字列が含まれているかを判定します。
+        #今回の場合はページ内に「successfully」という文字列があるかを判定します。
         expect(page).to have_content 'successfully'
       end
       it '投稿に失敗する' do
@@ -68,6 +104,8 @@ describe '投稿のテスト' do
         fill_in 'book[title]', with: Faker::Lorem.characters(number:5)
         fill_in 'book[body]', with: Faker::Lorem.characters(number:20)
         click_button 'Create Book'
+        #have_current_pathでは現在のURLパスを取得します。
+        #今回の場合は、投稿後のページURLが正しいURLパスであるかを判定しています。
         expect(page).to have_current_path book_path(Book.last)
       end
     end
